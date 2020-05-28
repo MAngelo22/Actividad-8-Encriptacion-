@@ -9,7 +9,6 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.Scanner;
-
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
@@ -36,6 +35,7 @@ public class Principal {
 			agenda = new Agenda();
 		if (ficheroclave.exists()){
 				clave = leerClave();
+				Descifrando(clave, agenda, descifrador);
 				agenda = Descifrando(clave, agenda, descifrador);
 			}else {
 			// Si no existe fichero agenda y tampoco hay clave.
@@ -167,7 +167,7 @@ public class Principal {
 	
 	public static Agenda Cifrando(Cipher cifrar, SecretKey clave, Agenda agenda) throws UnsupportedEncodingException {
 
-		// Creamos el generador de claves:1
+		// Creamos el generador de claves:
 		try {
 
 			// Recorro el contenido de la agenda, y voy cifrando
@@ -180,10 +180,11 @@ public class Principal {
 				byte[] bytesTelefonoCifrado = Base64.getEncoder().encode(bytesTelefonoOriginal);
 				String NombresCifrados = new String(bytesNombreCifrado);
 				String TelefonosCifrados = new String(bytesTelefonoCifrado);
-				
 				System.out.println(c);
 				System.out.println(c.getNombre()+ " = "+ NombresCifrados);
 				System.out.println(c.getTelefono()+ " = "+TelefonosCifrados);
+				c.setNombre(NombresCifrados);
+				c.setTelefono(TelefonosCifrados);
 			}
 		} finally {
 		}
@@ -204,10 +205,10 @@ public class Principal {
 				byte[] bytesTelefonoDescifrado = Base64.getDecoder().decode(bytesTelefonoCifrado);
 				String NombresDescifrados = new String(bytesNombreDescifrado);
 				String TelefonosDescifrados = new String(bytesTelefonoDescifrado);
-				c.setNombre(NombresDescifrados);
-				c.setTelefono(TelefonosDescifrados);
 				System.out.println("Nombre: " + NombresDescifrados);
 				System.out.println("Tlfn: " + TelefonosDescifrados);
+				c.setNombre(NombresDescifrados);
+				c.setTelefono(TelefonosDescifrados);
 			}
 		} finally {
 		}
