@@ -18,7 +18,8 @@ import javax.crypto.spec.SecretKeySpec;
 public class Principal {
 	static Scanner lector;
 
-	public static void main(String[] args) throws ClassNotFoundException, IOException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException {
+	public static void main(String[] args) throws ClassNotFoundException, IOException, NoSuchAlgorithmException,
+			NoSuchPaddingException, InvalidKeyException {
 		lector = new Scanner(System.in);
 		Agenda agenda = null;
 
@@ -26,25 +27,25 @@ public class Principal {
 		File ficheroclave = new File("Clave.dat");
 		Cipher descifrador = Cipher.getInstance("DES");
 		SecretKey clave;
-		
+
 		int opc = 0;
 
 		if (fichero.exists()) {
 			leerFichero(agenda);
-		}else 
+		} else
 			agenda = new Agenda();
-		if (ficheroclave.exists()){
-				clave = leerClave();
-				Descifrando(clave, agenda, descifrador);
-				agenda = Descifrando(clave, agenda, descifrador);
-			}else {
+		if (ficheroclave.exists()) {
+			clave = leerClave();
+			Descifrando(clave, agenda, descifrador);
+			agenda = Descifrando(clave, agenda, descifrador);
+		} else {
 			// Si no existe fichero agenda y tampoco hay clave.
 			// Creamos el generador de claves
-				KeyGenerator generador = KeyGenerator.getInstance("DES");
+			KeyGenerator generador = KeyGenerator.getInstance("DES");
 			// Generar una clave
-				clave = generador.generateKey();
-				descifrador.init(Cipher.ENCRYPT_MODE, clave);
-			}
+			clave = generador.generateKey();
+			descifrador.init(Cipher.ENCRYPT_MODE, clave);
+		}
 		while (opc != 5) {
 			mostrarMenu();
 			opc = lector.nextInt();
@@ -67,8 +68,8 @@ public class Principal {
 		// Ciframos y generamos el archivo con la agenda que devuelve el metodo
 		// "Cifrando"
 		Cifrando(descifrador, clave, agenda);
-		
-		crearClave(clave);		
+
+		crearClave(clave);
 		crearFichero(Cifrando(descifrador, clave, agenda));
 		lector.close();
 	}
@@ -144,7 +145,7 @@ public class Principal {
 		buffer.close();
 		file.close();
 	}
-	
+
 	public static void crearClave(SecretKey clave) throws IOException {
 		byte[] claveBytes = clave.getEncoded();
 		FileOutputStream file = new FileOutputStream("Clave.dat");
@@ -164,7 +165,7 @@ public class Principal {
 
 		return claveExistente;
 	}
-	
+
 	public static Agenda Cifrando(Cipher cifrar, SecretKey clave, Agenda agenda) throws UnsupportedEncodingException {
 
 		// Creamos el generador de claves:
@@ -181,8 +182,8 @@ public class Principal {
 				String NombresCifrados = new String(bytesNombreCifrado);
 				String TelefonosCifrados = new String(bytesTelefonoCifrado);
 				System.out.println(c);
-				System.out.println(c.getNombre()+ " = "+ NombresCifrados);
-				System.out.println(c.getTelefono()+ " = "+TelefonosCifrados);
+				System.out.println(c.getNombre() + " = " + NombresCifrados);
+				System.out.println(c.getTelefono() + " = " + TelefonosCifrados);
 				c.setNombre(NombresCifrados);
 				c.setTelefono(TelefonosCifrados);
 			}
@@ -198,22 +199,21 @@ public class Principal {
 
 		try {
 			for (Contacto c : agenda.getContactos()) {
-				
+
 				byte[] bytesNombreCifrado = c.getNombre().getBytes();
 				byte[] bytesTelefonoCifrado = c.getTelefono().getBytes();
 				byte[] bytesNombreDescifrado = Base64.getDecoder().decode(bytesNombreCifrado);
 				byte[] bytesTelefonoDescifrado = Base64.getDecoder().decode(bytesTelefonoCifrado);
 				String NombresDescifrados = new String(bytesNombreDescifrado);
 				String TelefonosDescifrados = new String(bytesTelefonoDescifrado);
-				System.out.println("Nombre: " + NombresDescifrados);
-				System.out.println("Tlfn: " + TelefonosDescifrados);
 				c.setNombre(NombresDescifrados);
 				c.setTelefono(TelefonosDescifrados);
+				System.out.println("Nombre: " + NombresDescifrados);
+				System.out.println("Tlfn: " + TelefonosDescifrados);
 			}
 		} finally {
 		}
 		return agenda;
 	}
 
-	
 }
