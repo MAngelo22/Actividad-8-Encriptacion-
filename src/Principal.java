@@ -30,48 +30,51 @@ public class Principal {
 
 		int opc = 0;
 
-		if (fichero.exists()) {
-			leerFichero(agenda);
-		} else
-			agenda = new Agenda();
-		if (ficheroclave.exists()) {
+		if (fichero.exists() && ficheroclave.exists()) {
+			agenda = leerFichero(agenda);
 			clave = leerClave();
-			Descifrando(clave, agenda, descifrador);
 			agenda = Descifrando(clave, agenda, descifrador);
 		} else {
-			// Si no existe fichero agenda y tampoco hay clave.
-			// Creamos el generador de claves
-			KeyGenerator generador = KeyGenerator.getInstance("DES");
-			// Generar una clave
-			clave = generador.generateKey();
-			descifrador.init(Cipher.ENCRYPT_MODE, clave);
-		}
-		while (opc != 5) {
-			mostrarMenu();
-			opc = lector.nextInt();
-			lector.nextLine(); // Para recoger el retorno de carro.
-			switch (opc) {
-			case 1:
-				nuevoContacto(agenda);
-				break;
-			case 2:
-				borrarContacto(agenda);
-				break;
-			case 3:
-				consultarContacto(agenda);
-				break;
-			case 4:
-				listadoContactos(agenda);
-				break;
+			agenda = new Agenda();
+			if (ficheroclave.exists()) {
+				clave = leerClave();
+				Descifrando(clave, agenda, descifrador);
+				agenda = Descifrando(clave, agenda, descifrador);
+			} else {
+				// Si no existe fichero agenda y tampoco hay clave.
+				// Creamos el generador de claves
+				KeyGenerator generador = KeyGenerator.getInstance("DES");
+				// Generar una clave
+				clave = generador.generateKey();
+				descifrador.init(Cipher.ENCRYPT_MODE, clave);
 			}
 		}
-		// Ciframos y generamos el archivo con la agenda que devuelve el metodo
-		// "Cifrando"
-		Cifrando(descifrador, clave, agenda);
+			while (opc != 5) {
+				mostrarMenu();
+				opc = lector.nextInt();
+				lector.nextLine(); // Para recoger el retorno de carro.
+				switch (opc) {
+				case 1:
+					nuevoContacto(agenda);
+					break;
+				case 2:
+					borrarContacto(agenda);
+					break;
+				case 3:
+					consultarContacto(agenda);
+					break;
+				case 4:
+					listadoContactos(agenda);
+					break;
+				}
+			}
+			// Ciframos y generamos el archivo con la agenda que devuelve el metodo
+			// "Cifrando"
+			Cifrando(descifrador, clave, agenda);
 
-		crearClave(clave);
-		crearFichero(Cifrando(descifrador, clave, agenda));
-		lector.close();
+			crearClave(clave);
+			crearFichero(Cifrando(descifrador, clave, agenda));
+			lector.close();
 	}
 
 	public static void mostrarMenu() {
@@ -138,12 +141,13 @@ public class Principal {
 		file.close();
 	}
 
-	public static void leerFichero(Agenda agenda) throws IOException, ClassNotFoundException {
+	public static Agenda leerFichero(Agenda agenda) throws IOException, ClassNotFoundException {
 		FileInputStream file = new FileInputStream("agenda.dat");
 		ObjectInputStream buffer = new ObjectInputStream(file);
 		agenda = (Agenda) buffer.readObject();
 		buffer.close();
 		file.close();
+		return agenda;
 	}
 
 	public static void crearClave(SecretKey clave) throws IOException {
@@ -181,9 +185,6 @@ public class Principal {
 				byte[] bytesTelefonoCifrado = Base64.getEncoder().encode(bytesTelefonoOriginal);
 				String NombresCifrados = new String(bytesNombreCifrado);
 				String TelefonosCifrados = new String(bytesTelefonoCifrado);
-				System.out.println(c);
-				System.out.println(c.getNombre() + " = " + NombresCifrados);
-				System.out.println(c.getTelefono() + " = " + TelefonosCifrados);
 				c.setNombre(NombresCifrados);
 				c.setTelefono(TelefonosCifrados);
 			}
@@ -195,8 +196,8 @@ public class Principal {
 	}
 
 	public static Agenda Descifrando(SecretKey claveExistente, Agenda agenda, Cipher descifrador)
-			throws InvalidKeyException {
-
+			throws InvalidKeyException, IOException, ClassNotFoundException {
+		descifrador.init(Cipher.DECRYPT_MODE, claveExistente);
 		try {
 			for (Contacto c : agenda.getContactos()) {
 
@@ -208,8 +209,6 @@ public class Principal {
 				String TelefonosDescifrados = new String(bytesTelefonoDescifrado);
 				c.setNombre(NombresDescifrados);
 				c.setTelefono(TelefonosDescifrados);
-				System.out.println("Nombre: " + NombresDescifrados);
-				System.out.println("Tlfn: " + TelefonosDescifrados);
 			}
 		} finally {
 		}
